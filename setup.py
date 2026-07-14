@@ -10,6 +10,8 @@ setup(
         ]
     },
     description='Bahasa Pemrograman Indonesia berbasis Python',
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     author='Fathirthe-founder1',
     url='https://github.com/Fathirthe-founder1/Piton',
     classifiers=[
