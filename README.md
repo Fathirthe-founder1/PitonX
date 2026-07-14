@@ -96,14 +96,32 @@ Berikut adalah tabel padanan sintaksis lengkap dari PitonX ke Python standard:
 | **Khusus** | nama | name |
 | | utama | main |
 
+## 🧠 Mode Super Singkat
+
+PitonX memiliki fitur **Mode Super Singkat** yang memungkinkan kamu menulis kode tanpa perlu mengetik `ketik()` setiap kali.
+
+### Aturan:
+1. Jika sebuah baris hanya berisi **string (teks dalam kutip)** atau **angka**, otomatis menjadi `ketik(...)`.
+2. Jika baris mengandung `=`, `jika`, `selagi`, atau `buat`, baris tersebut **tidak akan diubah**.
+
+### Contoh:
+
+| Kamu ngetik ini | Sistem akan menjalankan ini |
+|-----------------|------------------------------|
+| `"Halo dunia"` | `ketik("Halo dunia")` |
+| `'Halo'` | `ketik('Halo')` |
+| `5 + 10` | `ketik(5 + 10)` |
+| `nama = "Fathir"` | Tetap sebagai variabel |
+| `jika x > 5:` | Tetap sebagai logika |
+| `selagi benar:` | Tetap sebagai perulangan |
+
 ## ⚙️ Cara Kerja Sistem
 
 Sistem penerjemahan PitonX bekerja melalui beberapa tahapan ringkas berikut:
 
 1. **Input**: Pengguna menulis kode program menggunakan sintaksis PitonX.
 2. **Translasi**: Sistem membaca kode tersebut dan menerjemahkannya ke kode Python standar menggunakan kamus pemetaan `PITON_MAP`.
-3. **Mode Super Singkat**: Fitur otomatis yang mengubah ekspresi string atau angka langsung menjadi fungsi `ketik()`.
-4. **Eksekusi**: Kode Python hasil terjemahan dieksekusi secara real-time dan hasilnya dikembalikan sebagai output kepada pengguna.
+3. **Eksekusi**: Kode Python hasil terjemahan dieksekusi secara real-time dan hasilnya dikembalikan sebagai output kepada pengguna.
 
 ## 📁 Struktur Folder
 
@@ -124,7 +142,7 @@ PitonX/
 ## 👥 Credit & Author
 
 * **Author:** Fathirthe-founder1
-* **Credit:** DeepSeek, Komunitas Python Indonesia
+* **Credit:** Deepseek,Fathir
 
 ---
 
