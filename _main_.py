@@ -1,3 +1,4 @@
-from piton.cli import main
+from pitonx.cli import main
+
 if __name__ == "__main__":
     main()
