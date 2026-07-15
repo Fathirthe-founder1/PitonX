@@ -2,7 +2,7 @@
   <img src="assets/pitonx.png" alt="PitonX Logo" width="120">
 </p>
 
-**Piton**<span style="color:#FF0000;">X</span>
+# PitonX - Multi Fiture from Python
 
 PitonX adalah bahasa pemrograman berbasis Python yang menggunakan sintaksis Bahasa Indonesia. Proyek ini dirancang khusus untuk mempermudah pemula, pelajar, dan developer di Indonesia dalam memahami logika pemrograman tanpa terkendala bahasa. PitonX juga mendukung **Dual Mode** yang memungkinkan Anda mencampur sintaks bahasa Indonesia dan Inggris secara fleksibel.
 
@@ -13,16 +13,30 @@ Pastikan Anda sudah menginstal Python dan `pip` di sistem Anda. Jalankan perinta
 ```bash
 pip install PitonX
 ```
+**Upgrade versi terbaru🚀**
+```bash
+pip install --upgrade pitonx
+```
+**Untuk check versi PitonX**
+kunjungi🌐:
+https://pypi.org/project/pitonx/
+
+**Bisa juga check di Terminal**
+```bash
+pip show pitonx
+```
 
 ## 🛠️ Cara Pakai
 
 Anda dapat menggunakan PitonX melalui CLI (Command Line Interface) atau mengisinya sebagai library di dalam kode Python.
 
 ### Melalui CLI
-Jalankan file script PitonX (berekstensi `.px`) langsung dari terminal:
+Setelah selesai menginstall **PitonX**,
+Anda dapat menjalankan command ini di Terminal:
 ```bash
-pitonx nama_file.px
+pitonx
 ```
+dengan command tersebut anda dapat melihat instruksi **PitonX** lebih lanjut
 
 ### Melalui Library Python
 Gunakan fungsi `run` dari modul `pitonx` untuk mengeksekusi string kode:
