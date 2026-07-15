@@ -2,7 +2,7 @@
   <img src="assets/pitonx.png" alt="PitonX Logo" width="120">
 </p>
 
-# Piton<font color="red">X</font> — Bahasa Pemrograman Indonesia
+# Piton<font color="red">X</font> — Modifikasi Python
 
 PitonX adalah bahasa pemrograman berbasis Python yang menggunakan sintaksis Bahasa Indonesia. Proyek ini dirancang khusus untuk mempermudah pemula, pelajar, dan developer di Indonesia dalam memahami logika pemrograman tanpa terkendala bahasa. PitonX juga mendukung **Dual Mode** yang memungkinkan Anda mencampur sintaks bahasa Indonesia dan Inggris secara fleksibel.
 
