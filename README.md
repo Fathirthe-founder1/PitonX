@@ -18,6 +18,7 @@ pip install PitonX
 pip install --upgrade pitonx
 ```
 **Untuk check versi PitonX**
+
 kunjungi🌐:
 https://pypi.org/project/pitonx/
 
