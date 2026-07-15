@@ -38,7 +38,7 @@ PITON_MAP = {
     'desimal': 'float',
     'logika': 'bool',
     'daftar': 'list',
-    'kamus': 'dict',
+    'peta': 'dict',
     'panjang': 'len',
     'jenis': 'type',
     'rentang': 'range',
