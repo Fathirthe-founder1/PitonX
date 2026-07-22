@@ -405,7 +405,6 @@ PitonX dirilis di bawah lisensi MIT. Silakan lihat file `LICENSE` untuk detail l
 **Jameson AlFathir Void (Fathirthe-founder1)**
 
 - GitHub: [@Fathirthe-founder1](https://github.com/Fathirthe-founder1)
-- Email: fathiragata22@gmail.com
 
 ---
 
@@ -425,4 +424,11 @@ Terima kasih telah menggunakan PitonX! Semoga bahasa pemrograman ini membuat pem
 
 ---
 
-**"Dreams will not be hindered by your weaknesses, dreams will only be hindered if you don't do it." — Fathir**
+## DISCLAIMER💡
+
+> **Proyek ini hanya Hobi,Eksperimen,Iseng saja,jika ada yang mau mengembangkan,maka silahkan**
+
+# CREDIT🤝
+
+**Author**: Fathirthe-founder1 
+**Assistant**: Deepseek
