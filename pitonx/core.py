@@ -1,23 +1,73 @@
-import sys
-from .builtins import KAMUS_INTI
+"""
+PitonX Core Module
+Main logic for transpiling and running PitonX code
+"""
 
-def translate(kode: str) -> str:
-    lines = kode.split('\n')
-    hasil = []
-    for line in lines:
-        # Mode Super Singkat (string langsung)
-        if line.strip().startswith('"') and line.strip().endswith('"') and '=' not in line:
-            hasil.append(f'print({line.strip()})')
-        else:
-            # Ganti semua keyword PitonX dengan Python
-            for kata, py in KAMUS_INTI.items():
-                line = line.replace(kata, py)
-            hasil.append(line)
-    return '\n'.join(hasil)
+from pitonx.lexer import Lexer
+from pitonx.parser import Parser
+from pitonx.transpiler import Transpiler
+from pitonx.errors import PitonXError
 
-def run(kode: str):
+
+def transpile(source_code):
+    """
+    Transpile PitonX source code to Python
+    
+    Args:
+        source_code (str): PitonX source code
+        
+    Returns:
+        str: Equivalent Python code
+        
+    Raises:
+        PitonXError: If transpilation fails
+    """
     try:
-        py_kode = translate(kode)
-        exec(py_kode, {'__builtins__': __builtins__})
+        # Lexical analysis
+        lexer = Lexer(source_code)
+        tokens = lexer.get_tokens()
+        
+        # Parsing
+        parser = Parser(tokens)
+        ast = parser.parse()
+        
+        # Transpilation
+        transpiler = Transpiler(ast)
+        python_code = transpiler.transpile()
+        
+        return python_code
+    except PitonXError as e:
+        raise e
     except Exception as e:
-        print(f"Error: {e}")
+        raise PitonXError(f"Kesalahan transpilasi: {str(e)}")
+
+
+def run(source_code, globals_dict=None, locals_dict=None):
+    """
+    Transpile and execute PitonX code
+    
+    Args:
+        source_code (str): PitonX source code
+        globals_dict (dict): Global namespace (optional)
+        locals_dict (dict): Local namespace (optional)
+        
+    Returns:
+        The result of executing the code
+        
+    Raises:
+        PitonXError: If transpilation fails
+    """
+    try:
+        python_code = transpile(source_code)
+        
+        if globals_dict is None:
+            globals_dict = {}
+        if locals_dict is None:
+            locals_dict = {}
+            
+        exec(python_code, globals_dict, locals_dict)
+        return locals_dict
+    except PitonXError as e:
+        raise e
+    except Exception as e:
+        raise PitonXError(f"Kesalahan eksekusi: {str(e)}")
