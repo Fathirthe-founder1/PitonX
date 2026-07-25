@@ -1,31 +1,43 @@
-<p align="center">
-  <img src="assets/pitonx.png" alt="PitonX Logo" width="120">
-</p>
 
-# PitonX - Bahasa Pemrograman Indonesia
+<div align="center">
 
-> "Dreams will not be hindered by your weaknesses, dreams will only be hindered if you don't do it." — Fathir
+![PitonX](assets/pitonx.png)
 
-PitonX adalah bahasa pemrograman dengan kata kunci berbahasa Indonesia yang dikompilasi ke Python. Dirancang dengan arsitektur yang terstruktur (Lexer → Parser → Transpiler) untuk memberikan pengalaman pemrograman yang intuitif dan mudah dipelajari bagi penutur bahasa Indonesia.
+# PitonX - Indonesian Python Transpiler
 
-## 🌟 Fitur Utama
+A lightweight Python-based transpiler that enables you to write Python code with Indonesian syntax.
 
-- **Kata Kunci Bahasa Indonesia** - Gunakan bahasa Indonesia untuk menulis kode
-- **Transpilasi ke Python** - Kode PitonX dikompilasi langsung ke Python yang valid
-- **REPL Interaktif** - Mode interaktif untuk eksperimen dan pembelajaran
-- **Arsitektur Terstruktur** - Lexer, Parser, dan Transpiler yang modular
-- **Library Support** - Gunakan PitonX sebagai library dalam proyek Python Anda
-- **Error Handling** - Pesan kesalahan yang jelas dan informatif dalam Bahasa Indonesia
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![Made with ❤️](https://img.shields.io/badge/Made%20with-%E2%9D%A4%EF%B8%8F-red.svg)](https://github.com/Fathirthe-founder1)
 
-## 📥 Instalasi
+</div>
 
-### Via pip (Rekomendasi)
+---
+
+## 🌟 Tentang PitonX
+
+PitonX adalah transpiler Python yang memungkinkan Anda menulis code Python menggunakan syntax bahasa Indonesia. Proyek ini dirancang untuk membuat pemrograman lebih accessible bagi programmer Indonesia dan memfasilitasi pembelajaran programming dalam bahasa lokal.
+
+**Fitur Utama:**
+- ✅ Transpiler Python → Indonesian Syntax
+- ✅ REPL Interactive Shell
+- ✅ Library Python yang bisa diimpor
+- ✅ CLI Terminal Commands
+- ✅ Support untuk file `.px`
+- ✅ Syntax yang intuitif dan mudah dipelajari
+
+---
+
+## 📦 Instalasi
+
+### Menggunakan pip
 
 ```bash
 pip install pitonx
 ```
 
-### Dari Source
+### Clone dari GitHub
 
 ```bash
 git clone https://github.com/Fathirthe-founder1/PitonX.git
@@ -33,397 +45,512 @@ cd PitonX
 pip install -e .
 ```
 
-## 🚀 Penggunaan
+---
 
-### Mode REPL Interaktif
+## 🚀 Quick Start
+
+### 1. REPL Interactive Mode
+
+Untuk membuka shell interaktif PitonX:
 
 ```bash
-# Masuk ke REPL interaktif
 piton
 ```
 
-Contoh di REPL:
+Output:
 ```
-piton> bilangan = 5
-piton> ketik(bilangan)
-5
-piton> keluar
+╔══════════════════════════════════════════╗
+║  PitonX REPL - Interactive Shell        ║
+║  Ketik 'keluar' untuk menutup           ║
+╚══════════════════════════════════════════╝
+
+x> ketik("Halo Dunia dari PitonX!")
+Halo Dunia dari PitonX!
+
+x> x = 10
+•••
+
+x> ketik(x)
+10
+
+x> keluar
+Sampai jumpa! 👋
 ```
 
-### Menjalankan File .px
+### 2. Menjalankan File `.px`
+
+Buat file `program.px`:
+
+```python
+ketik("Halo Dunia!")
+x = 5
+jika x > 3:
+    ketik("x lebih dari 3")
+```
+
+Jalankan dengan:
 
 ```bash
 pitonx program.px
 ```
 
-Contoh file `program.px`:
-```pitonx
-ketik("Halo, Dunia!")
-angka = 42
-ketik(angka)
+Output:
+```
+Halo Dunia!
+x lebih dari 3
 ```
 
-### Melihat Kamus Kata Kunci
-
-```bash
-pitonx --kamusx
-```
-
-Ini akan menampilkan daftar lengkap kata kunci PitonX dan artinya:
-
-```
-✓ Kamus Kata Kunci PitonX
-════════════════════════════════════════
-
-OUTPUT & INPUT:
-  ketik          →  print
-  masukan        →  input
-
-FUNGSI & KONTROL ALUR:
-  buat           →  def
-  kembalikan     →  return
-  jika           →  if
-  jikalau        →  elif
-  selain         →  else
-
-LOOP:
-  selagi         →  while
-  ulangi         →  for
-  henti          →  break
-  lanjut         →  continue
-
-... dan banyak lagi!
-```
-
-### Transpilasi ke Python
-
-Untuk melihat kode Python yang dihasilkan:
-
-```bash
-pitonx --transpile program.px
-```
-
-### Bantuan Perintah
-
-```bash
-pitonx --help
-```
-
-### Versi
-
-```bash
-pitonx --version
-```
-
-## 📚 Penggunaan Sebagai Library
-
-Gunakan PitonX dalam kode Python Anda:
-
-### Transpilasi Kode
+### 3. Menggunakan sebagai Library Python
 
 ```python
-from pitonx import transpile
+import pitonx as px
 
-code_pitonx = """
-ketik("Halo dari library PitonX!")
-angka = 10
-ketik(angka * 2)
-"""
+code = """
+buat hitung_faktorial(n):
+    jika n == 1:
+        kembalikan 1
+    kembalikan n * hitung_faktorial(n - 1)
 
-python_code = transpile(code_pitonx)
-print(python_code)
-```
-
-### Menjalankan Kode
-
-```python
-from pitonx import run
-
-code_pitonx = """
-buat hitung_jumlah(a, b):
-    kembalikan a + b
-
-hasil = hitung_jumlah(5, 3)
+hasil = hitung_faktorial(5)
 ketik(hasil)
 """
 
-namespace = run(code_pitonx)
-print(namespace)
+px.run(code)
 ```
 
-### Menggunakan Lexer, Parser, dan Transpiler Secara Terpisah
-
-```python
-from pitonx.lexer import Lexer
-from pitonx.parser import Parser
-from pitonx.transpiler import Transpiler
-
-code = "ketik('Hello')"
-
-# Tokenize
-lexer = Lexer(code)
-tokens = lexer.get_tokens()
-
-# Parse
-parser = Parser(tokens)
-ast = parser.parse()
-
-# Transpile
-transpiler = Transpiler(ast)
-python_code = transpiler.transpile()
-
-print(python_code)
+Output:
+```
+120
 ```
 
-## 📖 Kamus Kata Kunci PitonX
-
-### Output & Input
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `ketik` | `print` | Cetak ke layar |
-| `masukan` | `input` | Masukkan dari pengguna |
-
-### Fungsi & Kontrol Alur
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `buat` | `def` | Definisikan fungsi |
-| `kembalikan` | `return` | Kembalikan nilai |
-| `jika` | `if` | Kondisi jika |
-| `jikalau` | `elif` | Kondisi jika tidak |
-| `selain` | `else` | Kondisi selainnya |
-
-### Loop
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `selagi` | `while` | Loop selama |
-| `ulangi` | `for` | Loop ulangi |
-| `henti` | `break` | Henti loop |
-| `lanjut` | `continue` | Lanjut iterasi berikutnya |
-
-### Tipe Data
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `teks` | `str` | String/Teks |
-| `bilangan` | `int` | Integer/Bilangan bulat |
-| `desimal` | `float` | Float/Desimal |
-| `logika` | `bool` | Boolean/Logika |
-| `daftar` | `list` | List/Daftar |
-| `peta` | `dict` | Dictionary/Peta |
-
-### Fungsi Bawaan
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `panjang` | `len` | Panjang/Jumlah elemen |
-| `rentang` | `range` | Rentang angka |
-
-### Konstanta
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `BENAR` | `True` | Benar |
-| `SALAH` | `False` | Salah |
-| `KOSONG` | `None` | Kosong/Tidak ada |
-
-### Operator Logika
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `dan` | `and` | Dan logika |
-| `atau` | `or` | Atau logika |
-| `bukan` | `not` | Bukan logika |
-
-### Import & Modul
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `impor` | `import` | Impor modul |
-| `dari` | `from` | Dari modul |
-| `sbg` | `as` | Sebagai alias |
-
-### Exception Handling
-
-| PitonX | Python | Fungsi |
-|--------|--------|--------|
-| `coba` | `try` | Coba eksekusi |
-| `tangkapi` | `except` | Tangkap exception |
-| `lontar` | `raise` | Lontar exception |
-
-## 📝 Contoh Program
-
-### 1. Program Sederhana
-
-**File: `hello.px`**
-
-```pitonx
-ketik("Halo, Dunia!")
-nama = masukan("Siapa nama Anda? ")
-ketik("Halo, " + nama + "!")
-```
-
-### 2. Fungsi dan Loop
-
-**File: `faktorial.px`**
-
-```pitonx
-buat hitung_faktorial(n):
-    jika n == 0:
-        kembalikan 1
-    selain:
-        kembalikan n * hitung_faktorial(n - 1)
-
-hasil = hitung_faktorial(5)
-ketik("Faktorial 5 adalah: " + teks(hasil))
-```
-
-### 3. Loop dan Kondisi
-
-**File: `tabel_perkalian.px`**
-
-```pitonx
-ulangi i dalam rentang(1, 11):
-    ulangi j dalam rentang(1, 11):
-        ketik(i * j, " ", akhir="")
-    ketik()
-```
-
-### 4. List dan Dictionary
-
-**File: `data.px`**
-
-```pitonx
-daftar_angka = [1, 2, 3, 4, 5]
-ketik("List: ", daftar_angka)
-ketik("Panjang: ", panjang(daftar_angka))
-
-data_siswa = {
-    "nama": "Budi",
-    "umur": 20,
-    "nilai": 85
-}
-
-ketik("Nama: ", data_siswa["nama"])
-ketik("Nilai: ", data_siswa["nilai"])
-```
-
-## 🔧 Perintah CLI Lengkap
-
-```
-PitonX 8.0.3 - Bahasa Pemrograman Indonesia
-
-Penggunaan:
-  piton                    Masuk ke REPL interaktif
-  pitonx FILE              Jalankan file .px
-  pitonx --help            Tampilkan pesan bantuan
-  pitonx --version         Tampilkan versi PitonX
-  pitonx --transpile FILE  Tampilkan kode Python yang dihasilkan
-  pitonx --kamusx          Tampilkan daftar kamus kata kunci
-
-Contoh:
-  pitonx program.px
-  pitonx --transpile program.px
-  pitonx --kamusx
-  piton
-```
-
-## 🏗️ Arsitektur Sistem
-
-PitonX memiliki arsitektur 3 lapisan:
-
-```
-┌─────────────────────────────────┐
-│    Input: Kode PitonX           │
-└────────────┬────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────┐
-│    LEXER (Tokenizer)            │
-│  Memecah kode menjadi token     │
-└────────────┬────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────┐
-│    PARSER (AST Generator)       │
-│  Konversi token ke AST          │
-└────────────┬────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────┐
-│    TRANSPILER (Code Generator)  │
-│  Konversi AST ke Python         │
-└────────────┬────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────┐
-│   Output: Kode Python Valid     │
-└─────────────────────────────────┘
-```
-
-## 🐛 Troubleshooting
-
-### Import Error
-
-Jika mendapat error `ModuleNotFoundError: No module named 'pitonx'`, pastikan PitonX sudah diinstal:
-
-```bash
-pip install --upgrade pitonx
-```
-
-### File Not Found
-
-Pastikan file .px berada di direktori yang benar:
-
-```bash
-ls -la program.px
-pitonx program.px
-```
-
-### Syntax Error
-
-Periksa kamus kata kunci dengan:
-
-```bash
-pitonx --kamusx
-```
+---
 
 ## 📚 Dokumentasi Lengkap
 
-Untuk dokumentasi lebih lengkap, kunjungi:
-- GitHub: https://github.com/Fathirthe-founder1/PitonX
-- Issues: https://github.com/Fathirthe-founder1/PitonX/issues
+### A. Perintah CLI
 
-## 📄 Lisensi
+| Perintah | Deskripsi |
+|----------|----------|
+| `pitonx` | Tampilkan tutorial |
+| `pitonx --help` | Tampilkan bantuan |
+| `piton` | Buka REPL interactive mode |
+| `pitonx file.px` | Jalankan file PitonX |
 
-PitonX dirilis di bawah lisensi MIT. Silakan lihat file `LICENSE` untuk detail lebih lanjut.
+### B. Kamus Lengkap (Dictionary)
 
-## 👤 Penulis
+#### INPUT / OUTPUT
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `ketik` | `print` | Menampilkan output |
+| `masukan` | `input` | Menerima input dari user |
+| `buka` | `open` | Membuka file |
+| `tutup` | `close` | Menutup file |
+| `baca` | `read` | Membaca file |
+| `tulis` | `write` | Menulis ke file |
 
-**Jameson AlFathir Void (Fathirthe-founder1)**
+#### FUNGSI & KELAS
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `buat` | `def` | Mendefinisikan fungsi |
+| `kembalikan` | `return` | Mengembalikan nilai dari fungsi |
+| `wadah` | `class` | Mendefinisikan class |
+| `anon` | `lambda` | Fungsi anonymous |
+| `serahkan` | `yield` | Generator function |
 
-- GitHub: [@Fathirthe-founder1](https://github.com/Fathirthe-founder1)
+#### KONTROL ALUR (CONDITIONAL)
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `jika` | `if` | Kondisi jika |
+| `jikalau` | `elif` | Kondisi alternatif |
+| `selain` | `else` | Kondisi selain |
+| `pasti` | `assert` | Assertion |
+
+#### PERULANGAN (LOOPS)
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `selagi` | `while` | Perulangan while |
+| `ulangi` | `for` | Perulangan for |
+| `henti` | `break` | Hentikan loop |
+| `lanjut` | `continue` | Lanjutkan ke iterasi berikutnya |
+| `lewat` | `pass` | Pass statement |
+
+#### TIPE DATA
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `teks` | `str` | String/Text |
+| `bilangan` | `int` | Integer |
+| `desimal` | `float` | Float |
+| `logika` | `bool` | Boolean |
+| `daftar` | `list` | List/Array |
+| `peta` | `dict` | Dictionary |
+| `panjang` | `len` | Panjang |
+| `jenis` | `type` | Tipe data |
+| `rentang` | `range` | Range |
+
+#### BOOLEAN & SPECIAL VALUES
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `BENAR` | `True` | Boolean true |
+| `SALAH` | `False` | Boolean false |
+| `KOSONG` | `None` | Null/None value |
+
+#### OPERATOR LOGIKA
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `dan` | `and` | Logical AND |
+| `atau` | `or` | Logical OR |
+| `bukan` | `not` | Logical NOT |
+| `dalam` | `in` | Membership test |
+| `adalah` | `is` | Identity test |
+
+#### MODUL & IMPORT
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `impor` | `import` | Import module |
+| `dari` | `from` | Import from module |
+| `sbg` | `as` | Alias untuk import |
+
+#### ERROR HANDLING
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `coba` | `try` | Try block |
+| `tangkapi` | `except` | Except block |
+| `lontar` | `raise` | Raise exception |
+
+#### SCOPE & VARIABEL
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `umum` | `global` | Global variable |
+| `lokal` | `nonlocal` | Nonlocal variable |
+| `hapus` | `del` | Delete variable |
+
+#### MATEMATIKA & UTILITAS
+| Indonesian | Python | Fungsi |
+|-----------|--------|--------|
+| `maks` | `max` | Maksimum |
+| `min` | `min` | Minimum |
+| `total` | `sum` | Jumlah total |
+| `urut` | `sorted` | Sorting |
+| `abs` | `abs` | Absolute value |
+| `bulat` | `round` | Pembulatan |
+| `pangkat` | `pow` | Perpangkatan |
 
 ---
 
-## 💡 Berkontribusi
+### C. Contoh Penggunaan
 
-Kontribusi sangat dipersilakan! Untuk berkontribusi:
+#### 1. Hello World
 
-1. Fork repository ini
+**PitonX:**
+```python
+ketik("Halo Dunia dari PitonX!")
+```
+
+**Python Equivalent:**
+```python
+print("Halo Dunia dari PitonX!")
+```
+
+#### 2. Variabel & Tipe Data
+
+**PitonX:**
+```python
+nama = "Fathir"
+usia = 25
+tinggi = 175.5
+aktif = BENAR
+
+ketik(nama)
+ketik(usia)
+ketik(tinggi)
+ketik(aktif)
+```
+
+**Python Equivalent:**
+```python
+nama = "Fathir"
+usia = 25
+tinggi = 175.5
+aktif = True
+
+print(nama)
+print(usia)
+print(tinggi)
+print(aktif)
+```
+
+#### 3. Kondisi If-Else
+
+**PitonX:**
+```python
+nilai = 85
+
+jika nilai >= 90:
+    ketik("Grade A")
+jikalau nilai >= 80:
+    ketik("Grade B")
+jikalau nilai >= 70:
+    ketik("Grade C")
+selain:
+    ketik("Grade D")
+```
+
+**Python Equivalent:**
+```python
+nilai = 85
+
+if nilai >= 90:
+    print("Grade A")
+elif nilai >= 80:
+    print("Grade B")
+elif nilai >= 70:
+    print("Grade C")
+else:
+    print("Grade D")
+```
+
+#### 4. Perulangan For
+
+**PitonX:**
+```python
+ulangi i dalam rentang(1, 6):
+    ketik(i)
+```
+
+**Python Equivalent:**
+```python
+for i in range(1, 6):
+    print(i)
+```
+
+Output:
+```
+1
+2
+3
+4
+5
+```
+
+#### 5. Fungsi
+
+**PitonX:**
+```python
+buat jumlah(a, b):
+    kembalikan a + b
+
+buat halo(nama):
+    ketik("Halo, " + nama + "!")
+
+hasil = jumlah(10, 20)
+ketik(hasil)
+
+halo("Fathir")
+```
+
+**Python Equivalent:**
+```python
+def jumlah(a, b):
+    return a + b
+
+def halo(nama):
+    print("Halo, " + nama + "!")
+
+hasil = jumlah(10, 20)
+print(hasil)
+
+halo("Fathir")
+```
+
+---
+
+## 🏗️ Arsitektur Sistem
+
+PitonX terdiri dari beberapa komponen utama:
+
+```
+pitonx/
+├── __init__.py          # Entry point package
+├── builtins.py          # Kamus Indonesian-Python dictionary
+├── lexer.py             # Tokenizer untuk source code
+├── parser.py            # Parser untuk membangun AST
+├── transpiler.py        # Main transpiler (lexer + parser + codegen)
+├── interpreter.py       # Executor untuk Python code
+├── repl.py              # Interactive shell (REPL)
+└── cli.py               # Command-line interface
+
+setup.py                # Package configuration
+README.md              # Documentation
+LICENSE               # MIT License
+assets/
+├── pitonx.png         # Logo
+```
+
+### Alur Kerja (Workflow)
+
+```
+PitonX Source Code
+        ↓
+    LEXER (lexer.py)
+    Tokenization
+        ↓
+    PARSER (parser.py)
+    AST Generation
+        ↓
+    TRANSPILER (transpiler.py)
+    Python Code Generation
+        ↓
+    INTERPRETER (interpreter.py)
+    Execution
+        ↓
+    Output
+```
+
+---
+
+## 🎮 REPL Interactive Commands
+
+Dalam mode interactive (`piton`), Anda bisa menggunakan perintah khusus:
+
+| Perintah | Deskripsi |
+|----------|----------|
+| `keluar` / `exit` | Keluar dari REPL |
+| `bantuan` | Tampilkan bantuan |
+| `kamus` | Tampilkan kamus lengkap |
+
+**Contoh:**
+
+```
+x> bantuan
+[Menampilkan bantuan]
+
+x> kamus
+[Menampilkan kamus lengkap]
+
+x> x = 10
+•••
+
+x> ketik(x)
+10
+
+x> keluar
+Sampai jumpa! 👋
+```
+
+---
+
+## 💻 Python Library API
+
+### Import PitonX
+
+```python
+import pitonx as px
+```
+
+### Method: `run(code, variables=None)`
+
+Menjalankan code PitonX dan mengembalikan result.
+
+**Parameter:**
+- `code` (str): Source code PitonX
+- `variables` (dict): Optional, variabel yang diinjeksi
+
+**Return:**
+- Dictionary dari environment execution
+
+**Contoh:**
+
+```python
+import pitonx as px
+
+code = """
+x = 10
+y = 20
+total = x + y
+ketik(total)
+"""
+
+px.run(code)
+```
+
+### Method: `transpile(code)`
+
+Transpile code PitonX ke Python.
+
+**Parameter:**
+- `code` (str): Source code PitonX
+
+**Return:**
+- str: Python source code
+
+**Contoh:**
+
+```python
+import pitonx as px
+
+pitonx_code = "ketik('Halo Dunia')"
+python_code = px.transpile(pitonx_code)
+print(python_code)
+# Output: print('Halo Dunia')
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+python -m pytest tests/
+```
+
+---
+
+## 🤝 Kontribusi
+
+Kami menerima kontribusi! Untuk berkontribusi:
+
+1. Fork repository
 2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
 3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
 4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
-
-## 🙏 Terima Kasih
-
-Terima kasih telah menggunakan PitonX! Semoga bahasa pemrograman ini membuat pembelajaran dan pengembangan lebih mudah.
+5. Buka Pull Request
 
 ---
 
-## DISCLAIMER💡
+## 📝 Lisensi
 
-> **Proyek ini hanya Hobi,Eksperimen saja,jika ada yang mau mengembangkan,boleh git clone**
+Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) untuk detail.
+
+---
+
+## 👨‍💻 Author
+
+**Jameson AlFathir Void**
+
+- GitHub: [@Fathirthe-founder1](https://github.com/Fathirthe-founder1)
+- Email: fathirthefound@example.com
+
+---
+
+## 🙏 Terima Kasih
+
+Terima kasih kepada semua kontributor dan pengguna PitonX!
+
+---
+
+## 📞 Support & Feedback
+
+Jika Anda menemukan bug atau punya saran:
+
+1. Buka [GitHub Issues](https://github.com/Fathirthe-founder1/PitonX/issues)
+2. Jelaskan masalah atau fitur yang diinginkan
+3. Kami akan merespons sesegera mungkin
+
+---
+
+<div align="center">
+
+**Made with ❤️ by Jameson AlFathir Void**
+
+⭐ Jika project ini membantu Anda, jangan lupa kasih bintang! ⭐
+
+</div>

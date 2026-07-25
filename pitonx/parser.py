@@ -1,467 +1,450 @@
 """
-PitonX Parser
-Converts tokens into an Abstract Syntax Tree (AST)
+Parser Module - Builds Abstract Syntax Tree from tokens
 """
 
-from pitonx.errors import ParserError
-from pitonx.keywords import KEYWORDS
+from dataclasses import dataclass
+from typing import List, Optional, Union
+from pitonx.lexer import Token, TokenType, Lexer
 
-
+# AST Node types
+@dataclass
 class ASTNode:
-    """Base class for all AST nodes"""
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.__dict__})"
+    """Base class for AST nodes"""
+    pass
 
-
+@dataclass
 class Program(ASTNode):
-    def __init__(self, statements):
-        self.statements = statements
+    statements: List[ASTNode]
 
-
-class Assignment(ASTNode):
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-
-
+@dataclass
 class BinaryOp(ASTNode):
-    def __init__(self, left, operator, right):
-        self.left = left
-        self.operator = operator
-        self.right = right
+    left: ASTNode
+    operator: str
+    right: ASTNode
 
-
+@dataclass
 class UnaryOp(ASTNode):
-    def __init__(self, operator, operand):
-        self.operator = operator
-        self.operand = operand
+    operator: str
+    operand: ASTNode
 
+@dataclass
+class Call(ASTNode):
+    func: ASTNode
+    args: List[ASTNode]
 
-class FunctionCall(ASTNode):
-    def __init__(self, name, arguments):
-        self.name = name
-        self.arguments = arguments
-
-
-class FunctionDef(ASTNode):
-    def __init__(self, name, parameters, body):
-        self.name = name
-        self.parameters = parameters
-        self.body = body
-
-
-class IfStatement(ASTNode):
-    def __init__(self, condition, then_body, else_body=None):
-        self.condition = condition
-        self.then_body = then_body
-        self.else_body = else_body
-
-
-class WhileStatement(ASTNode):
-    def __init__(self, condition, body):
-        self.condition = condition
-        self.body = body
-
-
-class ForStatement(ASTNode):
-    def __init__(self, variable, iterable, body):
-        self.variable = variable
-        self.iterable = iterable
-        self.body = body
-
-
-class ReturnStatement(ASTNode):
-    def __init__(self, value=None):
-        self.value = value
-
-
-class BreakStatement(ASTNode):
-    pass
-
-
-class ContinueStatement(ASTNode):
-    pass
-
-
-class Literal(ASTNode):
-    def __init__(self, value, type_):
-        self.value = value
-        self.type = type_
-
-
+@dataclass
 class Identifier(ASTNode):
-    def __init__(self, name):
-        self.name = name
+    name: str
 
+@dataclass
+class Number(ASTNode):
+    value: Union[int, float]
 
-class ListLiteral(ASTNode):
-    def __init__(self, elements):
-        self.elements = elements
+@dataclass
+class String(ASTNode):
+    value: str
 
+@dataclass
+class Assignment(ASTNode):
+    target: str
+    value: ASTNode
 
-class DictLiteral(ASTNode):
-    def __init__(self, pairs):
-        self.pairs = pairs
+@dataclass
+class IfStatement(ASTNode):
+    condition: ASTNode
+    body: List[ASTNode]
+    elif_parts: List[tuple]
+    else_body: Optional[List[ASTNode]]
 
+@dataclass
+class WhileLoop(ASTNode):
+    condition: ASTNode
+    body: List[ASTNode]
 
-class IndexAccess(ASTNode):
-    def __init__(self, object_, index):
-        self.object = object_
-        self.index = index
+@dataclass
+class ForLoop(ASTNode):
+    target: str
+    iterable: ASTNode
+    body: List[ASTNode]
 
+@dataclass
+class FunctionDef(ASTNode):
+    name: str
+    params: List[str]
+    body: List[ASTNode]
 
-class AttributeAccess(ASTNode):
-    def __init__(self, object_, attribute):
-        self.object = object_
-        self.attribute = attribute
+@dataclass
+class ClassDef(ASTNode):
+    name: str
+    body: List[ASTNode]
 
+@dataclass
+class ReturnStatement(ASTNode):
+    value: Optional[ASTNode]
+
+@dataclass
+class ImportStatement(ASTNode):
+    module: str
+    alias: Optional[str]
 
 class Parser:
-    """PitonX Parser"""
-
-    def __init__(self, tokens):
+    """Parses tokens into an AST"""
+    
+    def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.position = 0
-
-    def parse(self):
-        """Parse tokens into AST"""
+    
+    def parse(self) -> Program:
+        """Parse tokens into a program AST"""
         statements = []
-        while not self.is_at_end():
-            if self.peek().type in ('NEWLINE', 'EOF'):
-                self.advance()
+        
+        while not self._is_at_end():
+            if self._check(TokenType.NEWLINE):
+                self._advance()
                 continue
-            stmt = self.parse_statement()
+            
+            stmt = self._parse_statement()
             if stmt:
                 statements.append(stmt)
+        
         return Program(statements)
-
-    def parse_statement(self):
+    
+    def _parse_statement(self) -> Optional[ASTNode]:
         """Parse a single statement"""
-        token = self.peek()
-
-        if token.type == 'KATA_KUNCI':
-            keyword = KEYWORDS.get(token.value)
-            if keyword == 'def':
-                return self.parse_function_def()
-            elif keyword == 'if':
-                return self.parse_if_statement()
-            elif keyword == 'while':
-                return self.parse_while_statement()
-            elif keyword == 'for':
-                return self.parse_for_statement()
-            elif keyword == 'return':
-                return self.parse_return_statement()
-            elif keyword == 'break':
-                self.advance()
-                self.skip_newline()
-                return BreakStatement()
-            elif keyword == 'continue':
-                self.advance()
-                self.skip_newline()
-                return ContinueStatement()
-
-        expr = self.parse_expression()
-        self.skip_newline()
-        return expr
-
-    def parse_function_def(self):
-        """Parse function definition"""
-        self.expect_keyword('buat')
-        name = self.expect('IDENTIFIER').value
-        self.expect('TANDA_KURUNG_BUKA')
-
-        parameters = []
-        while self.peek().type != 'TANDA_KURUNG_TUTUP':
-            param = self.expect('IDENTIFIER').value
-            parameters.append(param)
-            if self.peek().type == 'KOMA':
-                self.advance()
-            elif self.peek().type != 'TANDA_KURUNG_TUTUP':
-                raise ParserError("Expected ',' or ')'")
-
-        self.expect('TANDA_KURUNG_TUTUP')
-        self.expect('TITIK_DUA')
-        self.skip_newline()
-        body = self.parse_block()
-
-        return FunctionDef(name, parameters, body)
-
-    def parse_if_statement(self):
+        if self._check(TokenType.EOF):
+            return None
+        
+        # Skip newlines
+        while self._check(TokenType.NEWLINE):
+            self._advance()
+        
+        if self._check(TokenType.EOF):
+            return None
+        
+        # Try to parse different statement types
+        if self._check_keyword('jika'):
+            return self._parse_if_statement()
+        elif self._check_keyword('selagi'):
+            return self._parse_while_loop()
+        elif self._check_keyword('ulangi'):
+            return self._parse_for_loop()
+        elif self._check_keyword('buat'):
+            return self._parse_function_def()
+        elif self._check_keyword('wadah'):
+            return self._parse_class_def()
+        elif self._check_keyword('kembalikan'):
+            return self._parse_return_statement()
+        elif self._check_keyword('impor'):
+            return self._parse_import_statement()
+        else:
+            return self._parse_expression_statement()
+    
+    def _parse_if_statement(self) -> IfStatement:
         """Parse if statement"""
-        self.expect_keyword('jika')
-        condition = self.parse_expression()
-        self.expect('TITIK_DUA')
-        self.skip_newline()
-        then_body = self.parse_block()
-
+        self._consume_keyword('jika')
+        condition = self._parse_expression()
+        self._consume(TokenType.COLON)
+        self._skip_newlines()
+        
+        body = self._parse_block()
+        elif_parts = []
         else_body = None
-        if self.peek().type == 'KATA_KUNCI' and KEYWORDS.get(self.peek().value) in ('elif', 'else'):
-            if KEYWORDS.get(self.peek().value) == 'elif':
-                else_body = self.parse_if_statement()
-            else:
-                self.expect_keyword('selain')
-                self.expect('TITIK_DUA')
-                self.skip_newline()
-                else_body = self.parse_block()
-
-        return IfStatement(condition, then_body, else_body)
-
-    def parse_while_statement(self):
+        
+        while self._check_keyword('jikalau'):
+            self._consume_keyword('jikalau')
+            elif_condition = self._parse_expression()
+            self._consume(TokenType.COLON)
+            self._skip_newlines()
+            elif_body = self._parse_block()
+            elif_parts.append((elif_condition, elif_body))
+        
+        if self._check_keyword('selain'):
+            self._consume_keyword('selain')
+            self._consume(TokenType.COLON)
+            self._skip_newlines()
+            else_body = self._parse_block()
+        
+        return IfStatement(condition, body, elif_parts, else_body)
+    
+    def _parse_while_loop(self) -> WhileLoop:
         """Parse while loop"""
-        self.expect_keyword('selagi')
-        condition = self.parse_expression()
-        self.expect('TITIK_DUA')
-        self.skip_newline()
-        body = self.parse_block()
-        return WhileStatement(condition, body)
-
-    def parse_for_statement(self):
+        self._consume_keyword('selagi')
+        condition = self._parse_expression()
+        self._consume(TokenType.COLON)
+        self._skip_newlines()
+        body = self._parse_block()
+        return WhileLoop(condition, body)
+    
+    def _parse_for_loop(self) -> ForLoop:
         """Parse for loop"""
-        self.expect_keyword('ulangi')
-        variable = self.expect('IDENTIFIER').value
-        self.expect_keyword('dalam') if self.peek().type == 'KATA_KUNCI' and self.peek().value == 'dalam' else None
-        iterable = self.parse_expression()
-        self.expect('TITIK_DUA')
-        self.skip_newline()
-        body = self.parse_block()
-        return ForStatement(variable, iterable, body)
-
-    def parse_return_statement(self):
+        self._consume_keyword('ulangi')
+        target = self._advance().value
+        self._consume_keyword('dalam')
+        iterable = self._parse_expression()
+        self._consume(TokenType.COLON)
+        self._skip_newlines()
+        body = self._parse_block()
+        return ForLoop(target, iterable, body)
+    
+    def _parse_function_def(self) -> FunctionDef:
+        """Parse function definition"""
+        self._consume_keyword('buat')
+        name = self._advance().value
+        self._consume(TokenType.LPAREN)
+        
+        params = []
+        if not self._check(TokenType.RPAREN):
+            params.append(self._advance().value)
+            while self._check(TokenType.COMMA):
+                self._advance()
+                params.append(self._advance().value)
+        
+        self._consume(TokenType.RPAREN)
+        self._consume(TokenType.COLON)
+        self._skip_newlines()
+        body = self._parse_block()
+        
+        return FunctionDef(name, params, body)
+    
+    def _parse_class_def(self) -> ClassDef:
+        """Parse class definition"""
+        self._consume_keyword('wadah')
+        name = self._advance().value
+        self._consume(TokenType.COLON)
+        self._skip_newlines()
+        body = self._parse_block()
+        return ClassDef(name, body)
+    
+    def _parse_return_statement(self) -> ReturnStatement:
         """Parse return statement"""
-        self.expect_keyword('kembalikan')
+        self._consume_keyword('kembalikan')
         value = None
-        if self.peek().type != 'NEWLINE' and self.peek().type != 'EOF':
-            value = self.parse_expression()
-        self.skip_newline()
+        if not self._check(TokenType.NEWLINE) and not self._check(TokenType.EOF):
+            value = self._parse_expression()
         return ReturnStatement(value)
-
-    def parse_block(self):
-        """Parse a block of statements"""
-        statements = []
-        self.expect('INDENT')
-        while self.peek().type != 'DEDENT' and not self.is_at_end():
-            if self.peek().type == 'NEWLINE':
-                self.advance()
-                continue
-            stmt = self.parse_statement()
-            if stmt:
-                statements.append(stmt)
-        self.expect('DEDENT')
-        return statements
-
-    def parse_expression(self):
-        """Parse an expression"""
-        return self.parse_assignment()
-
-    def parse_assignment(self):
-        """Parse assignment or other expressions"""
-        expr = self.parse_or()
-
-        if self.peek().type == 'OPERATOR_PENUGASAN':
-            if expr.__class__.__name__ != 'Identifier':
-                raise ParserError("Invalid assignment target")
-            op = self.advance().value
-            value = self.parse_assignment()
-            return Assignment(expr.name, value)
-
+    
+    def _parse_import_statement(self) -> ImportStatement:
+        """Parse import statement"""
+        self._consume_keyword('impor')
+        module = self._advance().value
+        
+        alias = None
+        if self._check_keyword('sbg'):
+            self._consume_keyword('sbg')
+            alias = self._advance().value
+        
+        return ImportStatement(module, alias)
+    
+    def _parse_expression_statement(self) -> ASTNode:
+        """Parse expression or assignment"""
+        expr = self._parse_assignment()
+        self._skip_newlines()
         return expr
-
-    def parse_or(self):
-        """Parse logical OR"""
-        left = self.parse_and()
-        while self.peek().type == 'KATA_KUNCI' and KEYWORDS.get(self.peek().value) == 'or':
-            self.advance()
-            right = self.parse_and()
-            left = BinaryOp(left, 'atau', right)
-        return left
-
-    def parse_and(self):
-        """Parse logical AND"""
-        left = self.parse_not()
-        while self.peek().type == 'KATA_KUNCI' and KEYWORDS.get(self.peek().value) == 'and':
-            self.advance()
-            right = self.parse_not()
-            left = BinaryOp(left, 'dan', right)
-        return left
-
-    def parse_not(self):
-        """Parse logical NOT"""
-        if self.peek().type == 'KATA_KUNCI' and KEYWORDS.get(self.peek().value) == 'not':
-            self.advance()
-            expr = self.parse_not()
-            return UnaryOp('bukan', expr)
-        return self.parse_comparison()
-
-    def parse_comparison(self):
-        """Parse comparison operators"""
-        left = self.parse_additive()
-        while self.peek().type == 'OPERATOR_PERBANDINGAN':
-            op = self.advance().value
-            right = self.parse_additive()
+    
+    def _parse_assignment(self) -> ASTNode:
+        """Parse assignment or expression"""
+        expr = self._parse_logical_or()
+        
+        if self._check(TokenType.ASSIGNMENT):
+            self._advance()
+            value = self._parse_assignment()
+            if isinstance(expr, Identifier):
+                return Assignment(expr.name, value)
+        
+        return expr
+    
+    def _parse_logical_or(self) -> ASTNode:
+        """Parse logical OR expression"""
+        left = self._parse_logical_and()
+        
+        while self._check_keyword('atau'):
+            op = self._advance().value
+            right = self._parse_logical_and()
             left = BinaryOp(left, op, right)
+        
         return left
-
-    def parse_additive(self):
-        """Parse addition and subtraction"""
-        left = self.parse_multiplicative()
-        while self.peek().type == 'OPERATOR_ARITMATIKA' and self.peek().value in ('+', '-'):
-            op = self.advance().value
-            right = self.parse_multiplicative()
+    
+    def _parse_logical_and(self) -> ASTNode:
+        """Parse logical AND expression"""
+        left = self._parse_comparison()
+        
+        while self._check_keyword('dan'):
+            op = self._advance().value
+            right = self._parse_comparison()
             left = BinaryOp(left, op, right)
+        
         return left
-
-    def parse_multiplicative(self):
-        """Parse multiplication and division"""
-        left = self.parse_power()
-        while self.peek().type == 'OPERATOR_ARITMATIKA' and self.peek().value in ('*', '/', '//', '%'):
-            op = self.advance().value
-            right = self.parse_power()
+    
+    def _parse_comparison(self) -> ASTNode:
+        """Parse comparison expression"""
+        left = self._parse_additive()
+        
+        while self._check(TokenType.COMPARISON):
+            op = self._advance().value
+            right = self._parse_additive()
             left = BinaryOp(left, op, right)
+        
         return left
-
-    def parse_power(self):
-        """Parse exponentiation"""
-        left = self.parse_unary()
-        if self.peek().type == 'OPERATOR_ARITMATIKA' and self.peek().value == '**':
-            op = self.advance().value
-            right = self.parse_power()
+    
+    def _parse_additive(self) -> ASTNode:
+        """Parse addition/subtraction"""
+        left = self._parse_multiplicative()
+        
+        while self.position < len(self.tokens) and self.tokens[self.position].value in ('+', '-'):
+            op = self._advance().value
+            right = self._parse_multiplicative()
             left = BinaryOp(left, op, right)
+        
         return left
-
-    def parse_unary(self):
+    
+    def _parse_multiplicative(self) -> ASTNode:
+        """Parse multiplication/division"""
+        left = self._parse_unary()
+        
+        while self.position < len(self.tokens) and self.tokens[self.position].value in ('*', '/', '%', '//'):
+            op = self._advance().value
+            right = self._parse_unary()
+            left = BinaryOp(left, op, right)
+        
+        return left
+    
+    def _parse_unary(self) -> ASTNode:
         """Parse unary expressions"""
-        if self.peek().type == 'OPERATOR_ARITMATIKA' and self.peek().value in ('+', '-'):
-            op = self.advance().value
-            expr = self.parse_unary()
-            return UnaryOp(op, expr)
-        return self.parse_postfix()
-
-    def parse_postfix(self):
-        """Parse postfix expressions (function calls, indexing, attribute access)"""
-        expr = self.parse_primary()
-
+        if self._check_keyword('bukan'):
+            op = self._advance().value
+            operand = self._parse_unary()
+            return UnaryOp(op, operand)
+        
+        if self.position < len(self.tokens) and self.tokens[self.position].value in ('-', '+'):
+            op = self._advance().value
+            operand = self._parse_unary()
+            return UnaryOp(op, operand)
+        
+        return self._parse_postfix()
+    
+    def _parse_postfix(self) -> ASTNode:
+        """Parse postfix expressions (function calls, member access)"""
+        expr = self._parse_primary()
+        
         while True:
-            if self.peek().type == 'TANDA_KURUNG_BUKA':
-                self.advance()
+            if self._check(TokenType.LPAREN):
+                self._advance()
                 args = []
-                while self.peek().type != 'TANDA_KURUNG_TUTUP':
-                    args.append(self.parse_expression())
-                    if self.peek().type == 'KOMA':
-                        self.advance()
-                self.expect('TANDA_KURUNG_TUTUP')
-                expr = FunctionCall(expr.name if isinstance(expr, Identifier) else str(expr), args)
-            elif self.peek().type == 'KURUNG_KOTAK_BUKA':
-                self.advance()
-                index = self.parse_expression()
-                self.expect('KURUNG_KOTAK_TUTUP')
-                expr = IndexAccess(expr, index)
-            elif self.peek().type == 'TITIK':
-                self.advance()
-                attr = self.expect('IDENTIFIER').value
-                expr = AttributeAccess(expr, attr)
+                if not self._check(TokenType.RPAREN):
+                    args.append(self._parse_expression())
+                    while self._check(TokenType.COMMA):
+                        self._advance()
+                        args.append(self._parse_expression())
+                self._consume(TokenType.RPAREN)
+                expr = Call(expr, args)
+            elif self._check(TokenType.DOT):
+                self._advance()
+                member = self._advance().value
+                expr = BinaryOp(expr, '.', Identifier(member))
             else:
                 break
-
+        
         return expr
-
-    def parse_primary(self):
+    
+    def _parse_primary(self) -> ASTNode:
         """Parse primary expressions"""
-        token = self.peek()
-
-        # Literals
-        if token.type == 'BILANGAN':
-            self.advance()
-            return Literal(int(token.value), 'int')
-
-        if token.type == 'DESIMAL':
-            self.advance()
-            return Literal(float(token.value), 'float')
-
-        if token.type == 'TEKS':
-            self.advance()
-            # Remove quotes
-            value = token.value[1:-1]
-            return Literal(value, 'str')
-
-        if token.type == 'KATA_KUNCI':
-            keyword = KEYWORDS.get(token.value)
-            if keyword == 'True':
-                self.advance()
-                return Literal(True, 'bool')
-            elif keyword == 'False':
-                self.advance()
-                return Literal(False, 'bool')
-            elif keyword == 'None':
-                self.advance()
-                return Literal(None, 'NoneType')
-
-        if token.type == 'IDENTIFIER':
-            self.advance()
-            return Identifier(token.value)
-
-        if token.type == 'TANDA_KURUNG_BUKA':
-            self.advance()
-            expr = self.parse_expression()
-            self.expect('TANDA_KURUNG_TUTUP')
+        if self._check(TokenType.NUMBER):
+            value = self._advance().value
+            if '.' in value:
+                return Number(float(value))
+            return Number(int(value))
+        
+        if self._check(TokenType.STRING):
+            return String(self._advance().value)
+        
+        if self._check(TokenType.IDENTIFIER):
+            return Identifier(self._advance().value)
+        
+        if self._check(TokenType.LPAREN):
+            self._advance()
+            expr = self._parse_expression()
+            self._consume(TokenType.RPAREN)
             return expr
-
-        if token.type == 'KURUNG_KOTAK_BUKA':
-            self.advance()
-            elements = []
-            while self.peek().type != 'KURUNG_KOTAK_TUTUP':
-                elements.append(self.parse_expression())
-                if self.peek().type == 'KOMA':
-                    self.advance()
-            self.expect('KURUNG_KOTAK_TUTUP')
-            return ListLiteral(elements)
-
-        if token.type == 'KURUNG_KURAWAL_BUKA':
-            self.advance()
-            pairs = []
-            while self.peek().type != 'KURUNG_KURAWAL_TUTUP':
-                key = self.parse_expression()
-                self.expect('TITIK_DUA')
-                value = self.parse_expression()
-                pairs.append((key, value))
-                if self.peek().type == 'KOMA':
-                    self.advance()
-            self.expect('KURUNG_KURAWAL_TUTUP')
-            return DictLiteral(pairs)
-
-        raise ParserError(f"Unexpected token: {token}")
-
-    def expect_keyword(self, indonesian_keyword):
-        """Expect a specific keyword"""
-        token = self.peek()
-        if token.type != 'KATA_KUNCI' or token.value != indonesian_keyword:
-            raise ParserError(f"Expected keyword '{indonesian_keyword}', got {token.value}")
-        return self.advance()
-
-    def expect(self, token_type):
-        """Expect a token of a specific type"""
-        token = self.peek()
-        if token.type != token_type:
-            raise ParserError(f"Expected {token_type}, got {token.type}")
-        return self.advance()
-
-    def peek(self):
-        """Look at the current token without consuming it"""
-        if self.is_at_end():
-            return self.tokens[-1]  # EOF token
-        return self.tokens[self.position]
-
-    def advance(self):
-        """Consume and return the current token"""
-        token = self.peek()
-        if not self.is_at_end():
+        
+        # Handle boolean and None literals
+        if self._check_keyword('BENAR'):
+            self._advance()
+            return Identifier('BENAR')
+        if self._check_keyword('SALAH'):
+            self._advance()
+            return Identifier('SALAH')
+        if self._check_keyword('KOSONG'):
+            self._advance()
+            return Identifier('KOSONG')
+        
+        raise Exception(f"Unexpected token: {self._current_token()}")
+    
+    def _parse_expression(self) -> ASTNode:
+        """Parse a complete expression"""
+        return self._parse_assignment()
+    
+    def _parse_block(self) -> List[ASTNode]:
+        """Parse an indented block of statements"""
+        if self._check(TokenType.INDENT):
+            self._advance()
+        
+        statements = []
+        while not self._check(TokenType.DEDENT) and not self._is_at_end():
+            if self._check(TokenType.NEWLINE):
+                self._advance()
+                continue
+            stmt = self._parse_statement()
+            if stmt:
+                statements.append(stmt)
+        
+        if self._check(TokenType.DEDENT):
+            self._advance()
+        
+        return statements
+    
+    def _check(self, token_type: TokenType) -> bool:
+        """Check if current token is of given type"""
+        if self._is_at_end():
+            return False
+        return self._current_token().type == token_type
+    
+    def _check_keyword(self, keyword: str) -> bool:
+        """Check if current token is an identifier with given value"""
+        if self._is_at_end():
+            return False
+        token = self._current_token()
+        return token.type == TokenType.IDENTIFIER and token.value == keyword
+    
+    def _advance(self) -> Token:
+        """Move to next token and return current"""
+        token = self._current_token()
+        if not self._is_at_end():
             self.position += 1
         return token
-
-    def skip_newline(self):
-        """Skip newline tokens"""
-        while self.peek().type == 'NEWLINE':
-            self.advance()
-
-    def is_at_end(self):
-        """Check if we're at the end of tokens"""
-        return self.position >= len(self.tokens) or self.peek().type == 'EOF'
+    
+    def _consume(self, token_type: TokenType) -> Token:
+        """Consume token of given type or raise error"""
+        if self._check(token_type):
+            return self._advance()
+        raise Exception(f"Expected {token_type}, got {self._current_token()}")
+    
+    def _consume_keyword(self, keyword: str) -> Token:
+        """Consume keyword or raise error"""
+        if self._check_keyword(keyword):
+            return self._advance()
+        raise Exception(f"Expected keyword '{keyword}', got {self._current_token()}")
+    
+    def _skip_newlines(self):
+        """Skip any newline tokens"""
+        while self._check(TokenType.NEWLINE):
+            self._advance()
+    
+    def _current_token(self) -> Token:
+        """Get current token without advancing"""
+        if self.position < len(self.tokens):
+            return self.tokens[self.position]
+        return self.tokens[-1]  # EOF
+    
+    def _is_at_end(self) -> bool:
+        """Check if we're at end of tokens"""
+        return self.position >= len(self.tokens) or self._current_token().type == TokenType.EOF

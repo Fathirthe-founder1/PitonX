@@ -1,31 +1,52 @@
 """
-PitonX - A Python Programming Language with Indonesian Keywords
-Version: 1.0.0
-Author: Fathirthe-founder1
-Repository: https://github.com/Fathirthe-founder1/PitonX
+PitonX - Indonesian Python Transpiler
+A lightweight Python-based transpiler with Indonesian syntax.
+
+Author: Jameson AlFathir Void
+License: MIT
 """
 
 __version__ = "1.0.0"
-__author__ = "Fathirthe-founder1"
-__description__ = "A library, package, modified Python with Indonesian keywords"
+__author__ = "Jameson AlFathir Void"
+__license__ = "MIT"
 
-from pitonx.core import run, transpile
-from pitonx.lexer import Lexer
-from pitonx.parser import Parser
 from pitonx.transpiler import Transpiler
-from pitonx.errors import PitonXError, LexerError, ParserError, TranspilerError
+from pitonx.interpreter import PitonXInterpreter
 
-__all__ = [
-    "run",
-    "transpile",
-    "Lexer",
-    "Parser",
-    "Transpiler",
-    "PitonXError",
-    "LexerError",
-    "ParserError",
-    "TranspilerError",
-    "__version__",
-    "__author__",
-    "__description__",
-]
+def run(code, variables=None):
+    """
+    Run PitonX code and return result.
+    
+    Args:
+        code (str): PitonX source code
+        variables (dict): Optional variables to pass to execution environment
+        
+    Returns:
+        Result of code execution
+        
+    Example:
+        >>> import pitonx as px
+        >>> code = 'ketik("Halo Dunia dari PitonX")'
+        >>> px.run(code)
+        Halo Dunia dari PitonX
+    """
+    transpiler = Transpiler()
+    python_code = transpiler.transpile(code)
+    
+    interpreter = PitonXInterpreter()
+    return interpreter.execute(python_code, variables)
+
+def transpile(code):
+    """
+    Transpile PitonX code to Python.
+    
+    Args:
+        code (str): PitonX source code
+        
+    Returns:
+        str: Python source code
+    """
+    transpiler = Transpiler()
+    return transpiler.transpile(code)
+
+__all__ = ['run', 'transpile', 'Transpiler', 'PitonXInterpreter']

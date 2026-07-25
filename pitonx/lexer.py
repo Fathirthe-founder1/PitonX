@@ -1,265 +1,260 @@
 """
-PitonX Lexer (Tokenizer)
-Converts PitonX source code into tokens
+Lexer Module - Tokenizes PitonX source code
 """
 
 import re
-from pitonx.keywords import KEYWORDS
-from pitonx.errors import LexerError
+from enum import Enum, auto
+from dataclasses import dataclass
+from typing import List, Optional
 
+class TokenType(Enum):
+    """Token types for PitonX lexer"""
+    # Literals
+    NUMBER = auto()
+    STRING = auto()
+    IDENTIFIER = auto()
+    
+    # Keywords
+    KEYWORD = auto()
+    
+    # Operators
+    OPERATOR = auto()
+    COMPARISON = auto()
+    ASSIGNMENT = auto()
+    
+    # Delimiters
+    LPAREN = auto()
+    RPAREN = auto()
+    LBRACKET = auto()
+    RBRACKET = auto()
+    LBRACE = auto()
+    RBRACE = auto()
+    COLON = auto()
+    COMMA = auto()
+    DOT = auto()
+    ARROW = auto()
+    
+    # Special
+    NEWLINE = auto()
+    INDENT = auto()
+    DEDENT = auto()
+    EOF = auto()
+    COMMENT = auto()
 
+@dataclass
 class Token:
     """Represents a single token"""
-    def __init__(self, type_, value, line=1, column=1):
-        self.type = type_
-        self.value = value
-        self.line = line
-        self.column = column
-
-    def __repr__(self):
-        return f"Token({self.type}, {self.value!r}, {self.line}:{self.column})"
-
+    type: TokenType
+    value: str
+    line: int
+    column: int
 
 class Lexer:
-    """Lexical analyzer for PitonX"""
-
-    TOKEN_SPECS = [
-        ('KOMENTAR', (r'#.*',)),
-        ('DESIMAL', (r'\d+\.\d+',)),
-        ('BILANGAN', (r'\d+',)),
-        ('TEKS', (r'"(?:\\.|[^"])*"', r"'(?:\\.|[^'])*'", r'`(?:\\.|[^`])*`')),
-        ('IDENTIFIER', (r'[a-zA-Z_][a-zA-Z0-9_]*',)),
-        ('OPERATOR_PERBANDINGAN', (r'(==|!=|<=|>=|<|>)',)),
-        ('OPERATOR_ARITMATIKA', (r'(\+|-|\*|/|//|%|\*\*)',)),
-        ('OPERATOR_PENUGASAN', (r'(\+=|-=|\*=|/=|//=|%=|\*\*=|=)',)),
-        ('OPERATOR_LOGIKA', (r'(&&|\|\||!)',)),
-        ('TITIK_KOMA', (r';',)),
-        ('TITIK_DUA', (r':',)),
-        ('KOMA', (r',',)),
-        ('TITIK', (r'\.',)),
-        ('TANDA_KURUNG_BUKA', (r'\(',)),
-        ('TANDA_KURUNG_TUTUP', (r'\)',)),
-        ('KURUNG_KOTAK_BUKA', (r'\[',)),
-        ('KURUNG_KOTAK_TUTUP', (r'\]',)),
-        ('KURUNG_KURAWAL_BUKA', (r'\{',)),
-        ('KURUNG_KURAWAL_TUTUP', (r'\}',)),
-        ('PANAH', (r'->',)),
-        ('WHITESPACE', (r'[ \t]+',)),
-        ('NEWLINE', (r'\n',)),
-        ('INDENT', (r'^[ \t]+',)),
-    ]
-
-    def __init__(self, source):
+    """Tokenizes PitonX source code"""
+    
+    def __init__(self, source: str):
         self.source = source
         self.position = 0
         self.line = 1
         self.column = 1
-        self.tokens = []
+        self.tokens: List[Token] = []
         self.indent_stack = [0]
-        self._tokenize()
-
-    def _tokenize(self):
-        """Main tokenization method"""
-        lines = self.source.split('\n')
-        current_indent = 0
-        prev_indent = 0
-
-        for line_num, line in enumerate(lines, 1):
-            # Skip empty lines and comments
-            if not line.strip() or line.strip().startswith('#'):
+        
+    def tokenize(self) -> List[Token]:
+        """Tokenize the entire source code"""
+        while self.position < len(self.source):
+            self._skip_whitespace_except_newline()
+            
+            if self.position >= len(self.source):
+                break
+                
+            char = self.source[self.position]
+            
+            # Handle comments
+            if char == '#':
+                self._skip_comment()
                 continue
-
-            # Calculate indentation
-            indent_match = re.match(r'^[ \t]*', line)
-            current_indent = len(indent_match.group()) if indent_match else 0
-
-            # Handle indentation changes
-            if current_indent > prev_indent:
-                self.tokens.append(Token('INDENT', current_indent, line_num, 1))
-            elif current_indent < prev_indent:
-                self.tokens.append(Token('DEDENT', prev_indent, line_num, 1))
-
-            prev_indent = current_indent
-            self._tokenize_line(line.strip(), line_num)
-
-        # Add EOF token
-        self.tokens.append(Token('EOF', '', len(lines), 1))
-
-    def _tokenize_line(self, line, line_num):
-        """Tokenize a single line"""
-        col = 1
-        i = 0
-
-        while i < len(line):
-            # Skip whitespace
-            if line[i] in ' \t':
-                i += 1
-                col += 1
+            
+            # Handle newlines
+            if char == '\n':
+                self.tokens.append(Token(TokenType.NEWLINE, '\n', self.line, self.column))
+                self._advance()
+                self._handle_indentation()
                 continue
-
-            # String literals
-            if line[i] in '"\'\'`':
-                quote = line[i]
-                end = i + 1
-                while end < len(line):
-                    if line[end] == quote and line[end-1] != '\\':
-                        break
-                    end += 1
-                if end >= len(line):
-                    raise LexerError("String tidak ditutup", line_num, col)
-                token_value = line[i:end+1]
-                self.tokens.append(Token('TEKS', token_value, line_num, col))
-                i = end + 1
-                col += len(token_value)
+            
+            # Handle strings
+            if char in ('"', "'"):
+                self.tokens.append(self._read_string())
                 continue
-
-            # Numbers
-            if line[i].isdigit():
-                j = i
-                while j < len(line) and line[j].isdigit():
-                    j += 1
-                if j < len(line) and line[j] == '.':
-                    j += 1
-                    while j < len(line) and line[j].isdigit():
-                        j += 1
-                    token_value = line[i:j]
-                    self.tokens.append(Token('DESIMAL', token_value, line_num, col))
-                else:
-                    token_value = line[i:j]
-                    self.tokens.append(Token('BILANGAN', token_value, line_num, col))
-                col += j - i
-                i = j
+            
+            # Handle numbers
+            if char.isdigit():
+                self.tokens.append(self._read_number())
                 continue
-
-            # Identifiers and keywords
-            if line[i].isalpha() or line[i] == '_':
-                j = i
-                while j < len(line) and (line[j].isalnum() or line[j] == '_'):
-                    j += 1
-                token_value = line[i:j]
-                if token_value in KEYWORDS:
-                    self.tokens.append(Token('KATA_KUNCI', token_value, line_num, col))
-                else:
-                    self.tokens.append(Token('IDENTIFIER', token_value, line_num, col))
-                col += j - i
-                i = j
+            
+            # Handle operators and delimiters
+            if self._try_two_char_operator():
                 continue
-
-            # Operators and punctuation
-            if line[i:i+2] == '->':
-                self.tokens.append(Token('PANAH', '->', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '==':
-                self.tokens.append(Token('OPERATOR_PERBANDINGAN', '==', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '!=':
-                self.tokens.append(Token('OPERATOR_PERBANDINGAN', '!=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '<=':
-                self.tokens.append(Token('OPERATOR_PERBANDINGAN', '<=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '>=':
-                self.tokens.append(Token('OPERATOR_PERBANDINGAN', '>=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+3] == '//': 
-                self.tokens.append(Token('OPERATOR_ARITMATIKA', '//', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '**':
-                self.tokens.append(Token('OPERATOR_ARITMATIKA', '**', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '+=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '+=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '-=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '-=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '*=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '*=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+2] == '/=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '/=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+3] == '//=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '//=', line_num, col))
-                i += 3
-                col += 3
-            elif line[i:i+2] == '%=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '%=', line_num, col))
-                i += 2
-                col += 2
-            elif line[i:i+3] == '**=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '**=', line_num, col))
-                i += 3
-                col += 3
-            elif line[i] == '=':
-                self.tokens.append(Token('OPERATOR_PENUGASAN', '=', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] in '+-*/%':
-                self.tokens.append(Token('OPERATOR_ARITMATIKA', line[i], line_num, col))
-                i += 1
-                col += 1
-            elif line[i] in '<>':
-                self.tokens.append(Token('OPERATOR_PERBANDINGAN', line[i], line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == '(':
-                self.tokens.append(Token('TANDA_KURUNG_BUKA', '(', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == ')':
-                self.tokens.append(Token('TANDA_KURUNG_TUTUP', ')', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == '[':
-                self.tokens.append(Token('KURUNG_KOTAK_BUKA', '[', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == ']':
-                self.tokens.append(Token('KURUNG_KOTAK_TUTUP', ']', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == '{':
-                self.tokens.append(Token('KURUNG_KURAWAL_BUKA', '{', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == '}':
-                self.tokens.append(Token('KURUNG_KURAWAL_TUTUP', '}', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == ':':
-                self.tokens.append(Token('TITIK_DUA', ':', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == ';':
-                self.tokens.append(Token('TITIK_KOMA', ';', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == ',':
-                self.tokens.append(Token('KOMA', ',', line_num, col))
-                i += 1
-                col += 1
-            elif line[i] == '.':
-                self.tokens.append(Token('TITIK', '.', line_num, col))
-                i += 1
-                col += 1
-            else:
-                raise LexerError(f"Karakter tidak dikenali: {line[i]!r}", line_num, col)
-
-        # Add newline token
-        self.tokens.append(Token('NEWLINE', '\n', line_num, col))
-
-    def get_tokens(self):
-        """Return all tokens"""
+            
+            if char in '()[]{}:,.<>!=+-*/%&|^':
+                self.tokens.append(self._read_operator())
+                continue
+            
+            # Handle identifiers and keywords
+            if char.isalpha() or char == '_':
+                self.tokens.append(self._read_identifier())
+                continue
+            
+            # Skip unknown characters
+            self._advance()
+        
+        self.tokens.append(Token(TokenType.EOF, '', self.line, self.column))
         return self.tokens
+    
+    def _advance(self) -> str:
+        """Move to next character"""
+        if self.position < len(self.source):
+            char = self.source[self.position]
+            self.position += 1
+            if char == '\n':
+                self.line += 1
+                self.column = 1
+            else:
+                self.column += 1
+            return char
+        return ''
+    
+    def _peek(self, offset: int = 0) -> str:
+        """Look ahead at character without advancing"""
+        pos = self.position + offset
+        if pos < len(self.source):
+            return self.source[pos]
+        return ''
+    
+    def _skip_whitespace_except_newline(self):
+        """Skip spaces and tabs but not newlines"""
+        while self.position < len(self.source) and self.source[self.position] in (' ', '\t', '\r'):
+            self._advance()
+    
+    def _skip_comment(self):
+        """Skip comment until end of line"""
+        while self.position < len(self.source) and self.source[self.position] != '\n':
+            self._advance()
+    
+    def _handle_indentation(self):
+        """Handle indentation changes"""
+        indent_level = 0
+        start_pos = self.position
+        
+        while self.position < len(self.source) and self.source[self.position] in (' ', '\t'):
+            if self.source[self.position] == ' ':
+                indent_level += 1
+            else:
+                indent_level += 4
+            self._advance()
+        
+        if self.position < len(self.source) and self.source[self.position] not in ('\n', '#'):
+            current_indent = self.indent_stack[-1]
+            
+            if indent_level > current_indent:
+                self.indent_stack.append(indent_level)
+                self.tokens.append(Token(TokenType.INDENT, '    ', self.line, self.column))
+            elif indent_level < current_indent:
+                while self.indent_stack and self.indent_stack[-1] > indent_level:
+                    self.indent_stack.pop()
+                    self.tokens.append(Token(TokenType.DEDENT, '', self.line, self.column))
+    
+    def _read_string(self) -> Token:
+        """Read string literal"""
+        start_line, start_col = self.line, self.column
+        quote = self.source[self.position]
+        self._advance()
+        
+        value = ''
+        while self.position < len(self.source) and self.source[self.position] != quote:
+            if self.source[self.position] == '\\':
+                self._advance()
+                if self.position < len(self.source):
+                    escape_char = self.source[self.position]
+                    if escape_char == 'n':
+                        value += '\n'
+                    elif escape_char == 't':
+                        value += '\t'
+                    elif escape_char == '\\':
+                        value += '\\'
+                    else:
+                        value += escape_char
+                    self._advance()
+            else:
+                value += self.source[self.position]
+                self._advance()
+        
+        if self.position < len(self.source):
+            self._advance()  # closing quote
+        
+        return Token(TokenType.STRING, value, start_line, start_col)
+    
+    def _read_number(self) -> Token:
+        """Read numeric literal"""
+        start_line, start_col = self.line, self.column
+        value = ''
+        
+        while self.position < len(self.source) and (self.source[self.position].isdigit() or self.source[self.position] == '.'):
+            value += self.source[self.position]
+            self._advance()
+        
+        return Token(TokenType.NUMBER, value, start_line, start_col)
+    
+    def _read_identifier(self) -> Token:
+        """Read identifier or keyword"""
+        start_line, start_col = self.line, self.column
+        value = ''
+        
+        while self.position < len(self.source) and (self.source[self.position].isalnum() or self.source[self.position] == '_'):
+            value += self.source[self.position]
+            self._advance()
+        
+        return Token(TokenType.IDENTIFIER, value, start_line, start_col)
+    
+    def _try_two_char_operator(self) -> bool:
+        """Try to match two-character operators"""
+        two_char = self.source[self.position:self.position + 2]
+        two_char_ops = {'==', '!=', '<=', '>=', '->', '**', '//', '&&', '||', '<<', '>>'}
+        
+        if two_char in two_char_ops:
+            token_type = TokenType.COMPARISON if two_char in {'==', '!=', '<=', '>='} else TokenType.OPERATOR
+            self.tokens.append(Token(token_type, two_char, self.line, self.column))
+            self._advance()
+            self._advance()
+            return True
+        
+        return False
+    
+    def _read_operator(self) -> Token:
+        """Read operator or delimiter"""
+        start_line, start_col = self.line, self.column
+        char = self.source[self.position]
+        self._advance()
+        
+        if char == '(':
+            return Token(TokenType.LPAREN, char, start_line, start_col)
+        elif char == ')':
+            return Token(TokenType.RPAREN, char, start_line, start_col)
+        elif char == '[':
+            return Token(TokenType.LBRACKET, char, start_line, start_col)
+        elif char == ']':
+            return Token(TokenType.RBRACKET, char, start_line, start_col)
+        elif char == '{':
+            return Token(TokenType.LBRACE, char, start_line, start_col)
+        elif char == '}':
+            return Token(TokenType.RBRACE, char, start_line, start_col)
+        elif char == ':':
+            return Token(TokenType.COLON, char, start_line, start_col)
+        elif char == ',':
+            return Token(TokenType.COMMA, char, start_line, start_col)
+        elif char == '.':
+            return Token(TokenType.DOT, char, start_line, start_col)
+        elif char == '=':
+            return Token(TokenType.ASSIGNMENT, char, start_line, start_col)
+        else:
+            return Token(TokenType.OPERATOR, char, start_line, start_col)

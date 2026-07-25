@@ -1,3 +1,7 @@
+"""
+Setup configuration for PitonX package
+"""
+
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -5,33 +9,38 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="pitonx",
-    version="8.1.7",
-    author="Fathirthe-founder1",
-    description="PitonX - A Python Programming Language with Indonesian Keywords",
+    version="1.0.0",
+    author="Jameson AlFathir Void",
+    author_email="fathirthefound@example.com",
+    description="A lightweight Python-based transpiler with Indonesian syntax",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Fathirthe-founder1/PitonX",
     packages=find_packages(),
-    python_requires=">=3.7",
-    entry_points={
-        "console_scripts": [
-            "pitonx=pitonx.main:main",
-            "piton=pitonx.main:repl_main",
-        ],
-    },
-    keywords=[
-        "python",
-        "programming",
-        "language",
-        "indonesian",
-        "transpiler",
-        "interpreter",
-        "bahasa-pemrograman",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Interpreters",
+        "Topic :: Education",
     ],
+    python_requires=">=3.7",
+    keywords="transpiler python indonesian syntax interpreter",
     project_urls={
         "Bug Reports": "https://github.com/Fathirthe-founder1/PitonX/issues",
-        "Documentation": "https://github.com/Fathirthe-founder1/PitonX",
-        "Source Code": "https://github.com/Fathirthe-founder1/PitonX",
+        "Source": "https://github.com/Fathirthe-founder1/PitonX",
     },
-    include_package_data=True,
+    entry_points={
+        "console_scripts": [
+            "pitonx=pitonx.cli:main",
+            "piton=pitonx.repl:run_repl",
+        ],
+    },
 )

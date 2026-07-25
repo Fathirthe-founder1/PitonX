@@ -34,7 +34,7 @@ KAMUS_INTI = {
     'desimal': 'float',
     'logika': 'bool',
     'daftar': 'list',
-    'peta': 'dict',            # ubah dari kamus ke peta
+    'peta': 'dict',
     'panjang': 'len',
     'jenis': 'type',
     'rentang': 'range',
@@ -79,3 +79,14 @@ KAMUS_INTI = {
     '__nama__': '__name__',
     '__utama__': '__main__'
 }
+
+# Reverse mapping for debugging
+KAMUS_BALIK = {v: k for k, v in KAMUS_INTI.items()}
+
+def get_python_equivalent(indonesian_keyword):
+    """Get Python equivalent of Indonesian keyword."""
+    return KAMUS_INTI.get(indonesian_keyword, indonesian_keyword)
+
+def is_indonesian_keyword(word):
+    """Check if word is an Indonesian keyword."""
+    return word in KAMUS_INTI
