@@ -9,7 +9,7 @@ A lightweight Python-based transpiler that enables you to write Python code with
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![Made with 🧠](https://img.shields.io/badge/Made%20with-%E2%9D%A4%EF%B8%8F-red.svg)](https://github.com/Fathirthe-founder1)
+[![Made with 🧠](https://img.shields.io/badge/Made%20with-%F0%9F%A7%A0-purple.svg)](https://github.com/Fathirthe-founder1)
 
 </div>
 
@@ -527,6 +527,7 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 **Jameson AlFathir Void**
 
 - GitHub: [@Fathirthe-founder1](https://github.com/Fathirthe-founder1)
+- Email: fathirthefound@example.com
 
 ---
 
