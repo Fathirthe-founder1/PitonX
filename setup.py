@@ -9,9 +9,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="pitonx",
-    version="1.0.0",
+    version="8.0.7",
     author="Jameson AlFathir Void",
-    author_email="fathirthefound@example.com",
     description="A lightweight Python-based transpiler with Indonesian syntax",
     long_description=long_description,
     long_description_content_type="text/markdown",
